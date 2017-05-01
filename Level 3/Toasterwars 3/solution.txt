@@ -1,0 +1,57 @@
+//server code
+// item check
+	if(entity.items.length < entity.stats.maxItems){
+		var itId = -1;
+		var name = "";
+		for(var i = 0; i < state.items.length; i++){
+			if(state.items[i].location.r == entity.location.r && state.items[i].location.c == entity.location.c){
+				itId = state.items[i].id;
+				msg.outcome.push({
+					type: "item/get",
+					id: state.items[i].id,
+					item: state.items[i].name
+				});
+				break;
+			}
+		}
+	}
+
+	entity.items = entity.items.concat(state.items.filter(function(it){ return it.id == itId; }));
+
+socket.on("resortItems", function(){
+			// logger.warn("[sort]", socket.id);
+
+			db.getState(socket.id)
+				.then(function(state){
+
+				if (state.done) {
+					return;
+				}
+
+				var oldState = censor(state);
+
+				state.player.items.sort(function(a, b){
+					if(a.name < b.name){
+						return -1;
+					}
+
+					if(a.name > b.name){
+						return 1;
+					}
+
+					return 0;
+				});
+
+				for(var i = 0; i < state.player.items.length; i++){
+					state.player.items[i].id = i;
+				}
+
+				state.log = [];
+
+				return db.commit(socket.id, state)
+					.then(sendState(socket, oldState, false));
+			});
+		})
+
+//solution
+//drop a lot of items on the same spot. then go pick up all the items....

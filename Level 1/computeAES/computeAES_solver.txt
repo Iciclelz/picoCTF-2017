@@ -1,0 +1,8 @@
+byte[] bkey = Base64.getDecoder().decode("BmVWeKy6Qd+LEUXnG81SJQ==");
+byte[] bcipher = Base64.getDecoder().decode("0hxb++cNGw5/mPbBGzFzmREFL9waMmCuHK0DmkqXzRYXvj6+AqKvvhDwP5e1CS/w");
+		
+Cipher c = Cipher.getInstance("AES/ECB/NoPadding");
+		
+SecretKey skey = new SecretKeySpec(bkey, 0, bkey.length, "AES");
+c.init(Cipher.DECRYPT_MODE, skey);
+System.out.println(new String(c.doFinal(bcipher)));
